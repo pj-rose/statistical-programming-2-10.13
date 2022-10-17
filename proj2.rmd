@@ -1,0 +1,95 @@
+---
+title: "proj2"
+author: "pj"
+date: "2022/10/17"
+output: pdf_document
+---
+#1
+```{r , include=FALSE}
+pone=function(n,k,strategy,nreps){
+  if(strategy==1){
+    boxes=1:2*n
+    card=sample(2*n,2*n)
+    successes=0
+    for (i in 1:nreps){
+      set.seed(3*i)
+      card=sample(2*n,2*n)
+      attempt=1
+      card_num=card[k]
+      while(attempt<n)
+        {
+         attempt=attempt+1
+        if (card_num==k){
+         successes=successes+1
+         break}
+        else
+          card_num=card[card_num]
+        }
+    
+    }
+      prob=successes/nreps
+      return(prob)
+    
+  }
+  if(strategy==2){
+    k_2=sample(2*n,1)
+    boxes=1:2*n
+    successes=0
+     for (i in 1:nreps){
+      set.seed(3*i)
+       card=sample(2*n,2*n)
+      attempt=1
+      card_num=card[k_2]
+      while(attempt<n)
+        {
+         attempt=attempt+1
+        if (card_num==k_2){
+         successes=successes+1
+         break}
+        else
+          card_num=card[card_num]
+        }
+    
+    }
+    prob=successes/nreps
+    return(prob)
+    
+ }
+  if(strategy==3){
+    boxes=1:2*n
+    successes=0
+     for (i in 1:nreps){
+      set.seed(3*i)
+      k_3=sample(2*n,1)
+      card=sample(2*n,2*n)
+      boxes=sample(2*n,n)
+      if(any(boxes==k_3)==TRUE)
+        successes=successes+1
+    }
+    prob=successes/nreps
+    return(prob)
+    
+  }
+}
+```
+
+## 2
+
+```{r 2}
+pall=function(n,strategy,nreps)
+  {
+  
+  
+  
+}
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
