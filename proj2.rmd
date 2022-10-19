@@ -1,0 +1,232 @@
+---
+title: "proj2"
+author: "pj"
+date: "2022/10/17"
+output: pdf_document
+---
+#1
+```{r , include=FALSE}
+pone=function(n,k,strategy,nreps){
+  if(strategy==1){
+    boxes=1:2*n
+    card=sample(2*n,2*n)
+    successes=0
+    for (i in 1:nreps){
+      card=sample(2*n,2*n)
+      attempt=1
+      card_num=card[k]
+      while(attempt<n)
+        {
+         attempt=attempt+1
+        if (card_num==k){
+         successes=successes+1
+         break}
+        else
+          card_num=card[card_num]
+        }
+    
+    }
+      prob=successes/nreps
+      return(prob)
+    
+  }
+  if(strategy==2){
+    k_2=sample(2*n,1)
+    boxes=1:2*n
+    successes=0
+     for (i in 1:nreps){
+       card=sample(2*n,2*n)
+      attempt=1
+      card_num=card[k_2]
+      while(attempt<n)
+        {
+         attempt=attempt+1
+        if (card_num==k_2){
+         successes=successes+1
+         break}
+        else
+          card_num=card[card_num]
+        }
+    
+    }
+    prob=successes/nreps
+    return(prob)
+    
+ }
+  if(strategy==3){
+    boxes=1:2*n
+    successes=0
+     for (i in 1:nreps){
+      k_3=sample(2*n,1)
+      card=sample(2*n,2*n)
+      boxes=sample(2*n,n)
+      if(any(boxes==k_3)==TRUE)
+        successes=successes+1
+    }
+    prob=successes/nreps
+    return(prob)
+    
+  }
+}
+```
+
+```{r}
+core_while=function(n,attempt,p,cards)
+  {
+    success=0
+   if (attempt==0)
+   {
+     card_num=sample(cards,1)
+     attempt=1
+   }
+   if (attempt==1)
+   {
+     card_num=cards[p]
+   }
+    while(attempt<n)
+    {
+     
+      if(card_num==p)
+      {
+        success=1
+        break;
+      }
+      else
+      {
+        card_num=cards[card_num]
+      }
+      attempt=attempt+1
+    }
+    return(success)
+}
+```
+
+## 2
+
+```{r 2}
+pall=function(n,strategy,nreps)
+  {
+  prisoners=1:(2*n)
+  all_released=nreps
+  if(strategy==1){
+    for (i in 1:nreps){
+      cards=sample(1:(2*n),2*n)
+      for (prisoner in prisoners)
+      {
+        if(core_while(n,1,prisoner,cards)==0)
+        {
+          all_released=all_released-1
+          break
+        }
+      }
+    }
+    return(all_released/nreps)
+  }
+  if(strategy==2){
+    for (i in 1:nreps)
+    {
+      cards=sample(1:(2*n),2*n)
+      for (prisoner in prisoners)
+      {
+        if(core_while(n,0,prisoner,cards)==0)
+        {
+          all_released=all_released-1
+          break;
+        }
+      }
+    }
+    return(all_released/nreps)
+    
+  }
+  if (strategy==3)
+  {
+    for (i in 1:nreps)
+    {
+      cards=sample(1:(2*n),2*n)
+      for (prisoner in prisoners)
+      {
+        unbox=sample(1:(2*n),n)
+        if (any(unbox==prisoner)==FALSE)
+        {
+          all_released=all_released-1
+          break;
+        }
+      }
+    }
+    return(all_released/nreps)
+  }
+}
+```
+
+## 5 dloop
+
+
+```{r ,echo=FALSE}
+dloop=function(n,nreps)
+{
+  boxes=1:(2*n)
+  occurence=rep(0,2*n)
+  for (i in 1:nreps)
+  {
+    cards=sample(boxes,2*n)
+     depth=1
+     u=cards[boxes]
+     while(depth<=2*n)
+     {
+       if (any(u==boxes))
+       {
+         occurence[depth]=occurence[depth]+1
+         u=cards[u]
+       }
+       else
+       {
+         u=cards[u]
+       }
+       depth=depth+1
+     }
+    
+  }
+  probs=occurence/nreps
+  return(probs)
+}
+```
+
+# 6
+```{r, echo=FALSE}
+n=50 
+nreps=100000
+prob=dloop(n,nreps)/nreps
+prob
+dloop.check=function(n,nreps)
+{
+  boxes=1:(2*n)
+  less_50=0
+  for (i in 1:nreps)
+  {
+    cards=sample(boxes,2*n)
+     depth=1
+     u=cards[boxes]
+     depth_measure=rep(0,2*n)
+     while(depth<=2*n)
+     {
+       if (any(u==boxes))
+       {
+         depth_measure[depth]=1
+         u=cards[u]
+       }
+       else
+       {
+         u=cards[u]
+       }
+       depth=depth+1
+     }
+      if (any(depth_measure[(2*n-10):(2*n)]==1)==FALSE)
+      {
+        less_50=less_50+1
+      }
+    }
+  return(less_50)
+}
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
