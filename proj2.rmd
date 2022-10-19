@@ -8,7 +8,7 @@ output: pdf_document
 ```{r , include=FALSE}
 pone=function(n,k,strategy,nreps){
   if(strategy==1){
-    boxes=1:2*n
+    boxes=1:(2*n)
     card=sample(2*n,2*n)
     successes=0
     for (i in 1:nreps){
@@ -32,7 +32,7 @@ pone=function(n,k,strategy,nreps){
   }
   if(strategy==2){
     k_2=sample(2*n,1)
-    boxes=1:2*n
+    boxes=1:(2*n)
     successes=0
      for (i in 1:nreps){
        card=sample(2*n,2*n)
@@ -54,7 +54,7 @@ pone=function(n,k,strategy,nreps){
     
  }
   if(strategy==3){
-    boxes=1:2*n
+    boxes=1:(2*n)
     successes=0
      for (i in 1:nreps){
       k_3=sample(2*n,1)
@@ -159,8 +159,6 @@ pall=function(n,strategy,nreps)
 ```
 
 ## 5 dloop
-
-
 ```{r ,echo=FALSE}
 dloop=function(n,nreps)
 {
@@ -168,23 +166,22 @@ dloop=function(n,nreps)
   occurence=rep(0,2*n)
   for (i in 1:nreps)
   {
+    occurence_time=rep(0,2*n) 
     cards=sample(boxes,2*n)
      depth=1
-     u=cards[boxes]
-     while(depth<=2*n)
+     u=cards
+     permutation_matrix=cards
+     while(depth<2*n)
      {
-       if (any(u==boxes))
-       {
-         occurence[depth]=occurence[depth]+1
-         u=cards[u]
-       }
-       else
-       {
-         u=cards[u]
-       }
-       depth=depth+1
+      u=cards[u]
+      permutation_matrix=rbind(permutation_matrix,u)
+      depth=depth+1
      }
-    
+     for (box in boxes)
+     {
+       occurence_time[which(permutation_matrix[,box]==box)[1]]=1
+     }
+    occurence=occurence+occurence_time
   }
   probs=occurence/nreps
   return(probs)
@@ -197,35 +194,36 @@ n=50
 nreps=100000
 prob=dloop(n,nreps)/nreps
 prob
+```
+
+```{r}
 dloop.check=function(n,nreps)
 {
   boxes=1:(2*n)
   less_50=0
   for (i in 1:nreps)
   {
-    cards=sample(boxes,2*n)
-     depth=1
-     u=cards[boxes]
+     cards=sample(boxes,2*n)
      depth_measure=rep(0,2*n)
-     while(depth<=2*n)
+     depth=1
+     u=cards
+     permutation_matrix=cards
+     while(depth<2*n)
      {
-       if (any(u==boxes))
-       {
-         depth_measure[depth]=1
-         u=cards[u]
-       }
-       else
-       {
-         u=cards[u]
-       }
-       depth=depth+1
+      u=cards[u]
+      permutation_matrix=rbind(permutation_matrix,u)
+      depth=depth+1
      }
-      if (any(depth_measure[(2*n-10):(2*n)]==1)==FALSE)
+     for (box in boxes)
+     {
+      depth_measure[which(permutation_matrix[,box]==box)[1]]=1
+     }
+      if (any(depth_measure[(n+1):(2*n)]==1)==FALSE)
       {
         less_50=less_50+1
       }
     }
-  return(less_50)
+  return(less_50/nreps)
 }
 ```
 
