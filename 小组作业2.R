@@ -1,8 +1,8 @@
 
-
+## 我写的##
 Pone<-function(n, k, strategy,nreps)
-{ p<-rep(0,2*n) #prisoner
-  card<-rep(n,2*n)
+{ p<-rep(0,(2*n)) #prisoner
+  card<-rep(n,(2*n))
   if (strategy==1)
     {
     
@@ -22,3 +22,92 @@ Pone<-function(n, k, strategy,nreps)
     }
   
 }
+
+
+##
+#1
+
+pone=function(n,k,strategy,nreps=10000)
+{ num_of_boxes=(2*n)
+  if(strategy==1)
+  { #n=100
+    boxes=seq(1:((2*n)))
+    card=sample((2*n),(2*n))
+    successes=0
+    for (i in 1:nreps)
+    {
+      #set.seed(3*i)               #为什么3i
+      card=sample((2*n),(2*n))
+      attempt=1
+      card_num=card[k]
+        while(attempt<n)
+       {
+        attempt=attempt+1
+         if (card_num==k)
+          {
+           successes=successes+1
+           break
+          }
+         else
+             card_num=card[card_num]
+        }
+      
+      }
+     prob=successes/nreps
+     return(list(prob,boxes))
+   }
+  
+
+    if(strategy==2)
+   {
+    k_2=sample((2*n),1)
+    boxes=seq(1,(2*n))
+    successes=0
+        for (i in 1:nreps)
+        {
+          #set.seed(3*i)
+          card=sample((2*n),(2*n))
+          attempt=1
+          card_num=card[k_2]
+              while(attempt<n)
+            {
+              attempt=attempt+1
+              if (card_num==k_2){
+                successes=successes+1
+                break}
+              else
+                card_num=card[card_num]
+            }
+        
+         }
+      prob=successes/nreps
+      return(prob)
+    }
+  
+    if(strategy==3)
+    {
+    boxes=seq(1,(2*n))
+    successes=0
+      for (i in 1:nreps)
+        {
+        #set.seed(3*i)
+        k_3=sample((2*n),1)
+        card=sample((2*n),(2*n))
+        boxes=sample((2*n),(2*n))
+          if(any(boxes==k_3)==TRUE)
+               successes=successes+1
+         }
+    prob=successes/nreps
+    return(list(prob,boxes))
+    }
+}
+
+pone(50,23,1,10000)
+
+pone(50,23,2,10000)
+pone(50,23,3,10000)
+
+
+#2
+
+
