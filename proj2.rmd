@@ -7,83 +7,55 @@ output: pdf_document
 #1
 ```{r , include=FALSE}
 pone=function(n,k,strategy,nreps){
+  boxes=1:(2*n)
+  successes=0
   if(strategy==1){
-    boxes=1:(2*n)
-    card=sample(2*n,2*n)
-    successes=0
     for (i in 1:nreps){
-      card=sample(2*n,2*n)
-      attempt=1
-      card_num=card[k]
-      while(attempt<n)
-        {
-         attempt=attempt+1
-        if (card_num==k){
-         successes=successes+1
-         break}
-        else
-          card_num=card[card_num]
-        }
-    
+      cards=sample(2*n,2*n)
+      successes=successes+core_while(n,1,k,cards)
     }
       prob=successes/nreps
       return(prob)
     
   }
   if(strategy==2){
-    k_2=sample(2*n,1)
-    boxes=1:(2*n)
-    successes=0
      for (i in 1:nreps){
-       card=sample(2*n,2*n)
-      attempt=1
-      card_num=card[k_2]
-      while(attempt<n)
-        {
-         attempt=attempt+1
-        if (card_num==k_2){
-         successes=successes+1
-         break}
-        else
-          card_num=card[card_num]
-        }
-    
+      cards=sample(2*n,2*n)
+      successes=successes+core_while(n,0,k,cards)
     }
     prob=successes/nreps
     return(prob)
     
  }
   if(strategy==3){
-    boxes=1:(2*n)
-    successes=0
      for (i in 1:nreps){
-      k_3=sample(2*n,1)
-      card=sample(2*n,2*n)
-      boxes=sample(2*n,n)
-      if(any(boxes==k_3)==TRUE)
+      cards=sample(2*n,2*n)
+      opened_boxes=sample(2*n,n)
+      if(any(opened_boxes==k)==TRUE)
         successes=successes+1
     }
     prob=successes/nreps
     return(prob)
-    
   }
 }
 ```
 
 ```{r}
-core_while=function(n,attempt,p,cards)
+core_while=function(n,attemptss,p,cards)
   {
     success=0
-   if (attempt==0)
-   {
-     card_num=sample(cards,1)
-     attempt=1
-   }
-   if (attempt==1)
+    if (attempts==1)
    {
      card_num=cards[p]
+    }
+    
+   if (attempts==0)
+   {
+     card_num=sample(cards,1)
+     attempts=1
    }
-    while(attempt<n)
+
+    while(attempts<n)
     {
      
       if(card_num==p)
@@ -95,7 +67,7 @@ core_while=function(n,attempt,p,cards)
       {
         card_num=cards[card_num]
       }
-      attempt=attempt+1
+      attempts=attempts+1
     }
     return(success)
 }
@@ -145,8 +117,8 @@ pall=function(n,strategy,nreps)
       cards=sample(1:(2*n),2*n)
       for (prisoner in prisoners)
       {
-        unbox=sample(1:(2*n),n)
-        if (any(unbox==prisoner)==FALSE)
+        opened_boxes=sample(1:(2*n),n)
+        if (any(opened_boxes==prisoner)==FALSE)
         {
           all_released=all_released-1
           break;
@@ -156,6 +128,39 @@ pall=function(n,strategy,nreps)
     return(all_released/nreps)
   }
 }
+```
+##3
+```{r}
+#Individual success probability
+#n=5
+#strategy 1
+pone(5,3,1,10000)
+#strategy 2
+pone(5,3,2,10000)
+#strategy 3
+pone(5,3,3,10000)
+#n=50
+#strategy 1
+pone(50,3,1,10000)
+#strategy 2
+pone(50,3,2,10000)
+#strategy 3
+pone(50,3,3,10000)
+#Joint success probability
+#n=5
+#strategy 1
+pall(5,1,10000)
+#strategy 2
+pall(5,2,10000)
+#strategy 3
+pall(5,3,10000)
+#n=50
+#strategy 1
+pall(50,1,10000)
+#strategy 2
+pall(50,2,10000)
+#strategy 3
+pall(50,3,10000)
 ```
 
 ## 5 dloop
@@ -191,8 +196,8 @@ dloop=function(n,nreps)
 # 6
 ```{r, echo=FALSE}
 n=50 
-nreps=100000
-prob=dloop(n,nreps)/nreps
+nreps=10000
+prob=dloop(n,nreps)
 prob
 ```
 
@@ -227,4 +232,9 @@ dloop.check=function(n,nreps)
 }
 ```
 
+```{r}
+d=1:100
+plot(d,prob,type='b',col=4,xlab='loop depth',ylab='probability',main='probability of occurence for loops in depth 1 to 100')
+
+```
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
