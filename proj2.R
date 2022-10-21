@@ -339,8 +339,8 @@ dloop.check=function(n,nreps)
   # returns the prob that no loop is longer than 50
   return(less_50/nreps)
 }
-
-
+# gives the probability that there isn't a loop longer than 50
+dloop.check(50,10000)
 
 d=1:100 # a lovely 1/x graph 
 plot(d,prob,type='b',col=4,xlab='loop depth',ylab='probability',main='probability of occurence for loops in depth 1 to 100')
