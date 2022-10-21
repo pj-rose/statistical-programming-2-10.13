@@ -267,7 +267,7 @@ dloop=function(n,nreps)
 # we create a (2n*2n) matrix, the permutation_matrix, where the columns are the
 # sequence of the cards found by opening the boxes sequentially in the style of
 # of strategy 1, the columns must be 2n tall in case we have a loop of length 2n
-# and it's 2n wide, In case we have 100 loops of length 1
+# and it's 2n wide, In case we have 2n loops of length 1
      while(depth<2*n)
      {
 # finds the loop
