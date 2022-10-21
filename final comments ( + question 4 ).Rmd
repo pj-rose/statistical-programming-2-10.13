@@ -1,0 +1,361 @@
+---
+title: "proj2"
+author: "pj"
+date: "2022/10/17"
+output: pdf_document
+---
+#1
+```{r , include=FALSE}
+# Henry Blackwell (s2451994), Peijie Zeng (s2332799) , Jing Pan (s2312688)
+# https://github.com/pj-rose/statistical-programming-2-10.13
+# Henry: comments (+q4), giving logic for 1,2 & 5 (helping pj with the code) , 
+# Peijie Zeng: most of coding and structure for 1,2,5 & 6, 
+# Jing Pan : proof reading, error checking and explain mathematical property of the task 
+#
+# READ ME, All comments will be above the line in question (using one: # )
+# for larger functions or if statements, etc: (using 2: ##)
+# we may use multiple lines of comments for explanation
+# 
+# 
+pone=function(n,k,strategy,nreps=10000){
+  # Labels our boxes from 1 to 2n, in a vector.
+  boxes=1:(2*n)
+  # a counter, to keep track of when a prisoner finds their number
+  successes=0
+  if(strategy==1){
+## Strategy 1, the prisoner first opens the box labelled with the their prisoner 
+## number, the card which has now been revealed will dictate the next box to open.
+## this will be continued until the card with the same number as the prisoner number
+## is found or the prisoner has run out of attempts ( = half the number of boxes) 
+# simulates a new instance of the room 'nreps' times
+    for (i in 1:nreps){
+# Shuffles the cards to get a random instance
+      cards=sample(2*n,2*n)
+# Uses the core_while function, which is a while loop , which is used 
+# for both strategy 1 & 2, this makes the code more concise, here the critical
+# argument is 1 (in the 2nd position) which means the first box chosen is the
+# the prisoners number, please see the core while function for more details
+      successes=successes+core_while(n,1,k,cards)
+    }
+# the core_while function returns the number of successes, which is then used
+# to calculate the probably by dividing by the number of simulations (nreps)
+      prob=successes/nreps
+      return(prob)
+    
+  }
+  if(strategy==2){
+## Strategy 2, a randomly selected first box but then a continuation in the 
+##  style of Strategy 1, comments for strategy 1 apply identically when we have 
+## the same variable names, the main difference is for argument 0 for core_while
+## (I've omitted similar comments to strategy 1)
+     for (i in 1:nreps){
+      cards=sample(2*n,2*n)
+# here 0, makes the first box randomly selected
+      successes=successes+core_while(n,0,k,cards)
+    }
+    prob=successes/nreps
+    return(prob)
+    
+ }
+  if(strategy==3){
+## Strategy 3 is the most simplistic, only randomly picking boxes to open, 
+## we achieve this via sampling without replacement , to stop the possibility of
+## opening a box multiple times. Therefore, there isn't a requirement for knowing
+## the last decision or any, allowing us to effectively open all boxes at the 
+## same time this removes the need for a while loop (core_while) as seen in 
+## strategy 1 & 2
+## (I've omitted similar comments to strategy 1 & 2)
+     for (i in 1:nreps){
+      cards=sample(2*n,2*n)
+# we sample w/o replacement, half of the boxes
+      opened_boxes=sample(2*n,n)
+# here in one go, we check if any card number equals the prisoner number
+      if(any(opened_boxes==k)==TRUE)
+        successes=successes+1
+    }
+    prob=successes/nreps
+    return(prob)
+  }
+}
+```
+
+```{r}
+## a function which will be can called upon when using strategy 1 or 2 as to  
+## make the code as a whole more concise and readable
+## Arguments: n, number of attempts, p (is the same as k but relabeled )  
+## and cards (same as card in pone and pall but relabeled).
+## This function is effectively a while loop which checks if the card found in 
+## a box equals the prisoner number, whilst the number of attempts is less than n.
+## If not then we check the next box and so forth, as described in strategy 1 & 2.
+core_while=function(n,attempts,p,cards)
+  {
+# tracks the times a prisoner finds their card
+    success=0
+# this is to enter the while loop and get a random box 
+    if (attempts==1)
+   {
+ ## gets the card number by opening the p-th box
+     card_num=cards[p]
+    }
+    
+   if (attempts==0)
+   {
+# finds the card number by sampling from the cards
+     card_num=sample(cards,1)
+# sets attempts to one, so we can enter the while loop 
+     attempts=1
+   }
+# the main part of the function, a while loop, whilst attempts are less than n
+    while(attempts<n)
+    {
+# if the card number equals the  prisoner number, p , then set success as 1
+      if(card_num==p)
+      {
+        success=1
+# break the loop, as soon as prisoner has found their card
+        break;
+      }
+# if the if statement is false then go the next box
+      else
+      {
+# finds the new box and the new card number by indexing over the cards by 
+# the old card number (as the card_num position is the same as the box number)
+        card_num=cards[card_num]
+      }
+# increment attempts 
+      attempts=attempts+1
+    }
+# return if the prisoner was successful, 1 if yes 0 if not 
+    return(success)
+}
+```
+
+## 2
+
+```{r 2}
+## a function pall which calculates the probability of all prisoners finding their card.
+## arguments: n; (number of attempts, also half the number of prisoners or boxes);
+## strategy 1,2  or 3 and number of repetitions. This function calculates the 
+## probability of all prisoners finding their card.
+pall=function(n,strategy,nreps)
+  {
+  prisoners=1:(2*n)
+  all_released=nreps
+# Strategy 1, see strategy==1 in pone for a full description
+  if(strategy==1){
+    for (i in 1:nreps){
+      cards=sample(1:(2*n),2*n)
+# now we loop over each prisoner in prisoners checking if they find the card
+      for (prisoner in prisoners)
+      {
+# calling the core_while function, taking arguments from the for loop over nreps
+# and other parts inside or outside the strategy == 1 if statement
+        if(core_while(n,1,prisoner,cards)==0)
+        {
+# we start at all_released has a value of nreps, the negatively increment, if 
+# any prisoner is unsuccessful
+          all_released=all_released-1
+# we break, as its pointless checking the other prisoners as they share each 
+# others fate 
+          break
+        }
+      }
+    }
+    return(all_released/nreps)
+  }
+## Using strategy 2, as described in comments for pone
+## I've omitted comments where there the same as other strategies
+  if(strategy==2){
+    for (i in 1:nreps)
+    {
+      cards=sample(1:(2*n),2*n)
+      for (prisoner in prisoners)
+      {
+# here attempts == 0 to access the corresponding part of core_while which 
+# randomly selects the first box 
+        if(core_while(n,0,prisoner,cards)==0)
+        {
+          all_released=all_released-1
+          break;
+        }
+      }
+    }
+# we return the probability by calculating the successful outcomes over the total outcomes
+    return(all_released/nreps)
+    
+  }
+## Strategy 3, 
+## again here we check all boxes simultaneously, 
+  if (strategy==3)
+  {
+    for (i in 1:nreps)
+    {
+      cards=sample(1:(2*n),2*n)
+# Unlike pone we use a for loop over so we can check if each prisoner finds their
+# card 
+      for (prisoner in prisoners)
+      {
+# we sample without replacement n times
+        opened_boxes=sample(1:(2*n),n)
+# then we check if any prisoners doesn't escape, then using 'all_released' to 
+# store this info
+        if (any(opened_boxes==prisoner)==FALSE)
+        {
+          all_released=all_released-1
+          break;
+        }
+      }
+    }
+    return(all_released/nreps)
+  }
+}
+```
+##3
+```{r}
+#Individual success probability
+#n=5
+#strategy 1 , 
+pone(5,3,1,10000)
+#strategy 2 
+pone(5,3,2,10000) 
+#strategy 3
+pone(5,3,3,10000)
+#n=50
+#strategy 1, th
+pone(50,3,1,10000)
+#strategy 2, Its quite interesting that starting from a random box but using 
+# a very similar strategy makes it significantly less effective 
+pone(50,3,2,10000)
+#strategy 3
+pone(50,3,3,10000)
+#Joint success probability
+#n=5
+#strategy 1, this should be near zero right, (1/2^10), yet its not weird, maybe 
+# n is too small too, I wonder how pall (n=50) will turn out.
+pall(5,1,10000) 
+#strategy 2
+pall(5,2,10000)
+#strategy 3
+pall(5,3,10000)
+#n=50
+# strategy 1, this is the most surprising result, as it seems that it should 
+# roughly be a (1/2)^2n chance of escaping, which should be effectively zero, yet
+# its around 0.31? This is counter-intuitive because it seems like the prisoners
+# are independent of each other but using strategy 1, in fact they're dependent. 
+pall(50,1,10000) 
+#strategy 2, now we get a zero, maybe by starting at a random box, it makes the 
+# prisoners independent again.
+pall(50,2,10000)
+#strategy 3, 
+pall(50,3,10000)
+```
+
+## 5 dloop
+```{r ,echo=FALSE}
+dloop=function(n,nreps)
+## This function, dloop , estimates, by simulation, the probability of each 
+## loop length from 1 to 2n occurring at least once in a random shuffling of 
+## cards to boxes arguments: n and nreps  
+## outputs: a 2n-vector of probabilities.
+## we use the formula:  u[u[· · · u[u[k]] · · · ]] = k. 
+## to find loops of length k, using for loops to check each box
+{
+  boxes=1:(2*n)
+# creates an empty vector of length 2n to store the probabilities in
+  occurence=rep(0,2*n)
+# simulates the problem nreps times
+  for (i in 1:nreps)
+  {
+# creates an empty vector of length 2n to store the probabilities in for each 
+# separate instance 
+    occurence_time=rep(0,2*n) 
+    cards=sample(boxes,2*n)
+# sets the search parameter to a depth of 1  e.g length of 1
+     depth=1
+# relabeling for concision
+     u=cards
+     permutation_matrix=cards
+# using a while loop checks for loops of length up to  the theoretical limit  
+#
+# we create a (2n*2n) matrix, the permutation_matrix, where the columns are the
+# sequence of the cards found by opening the boxes sequentially in the style of
+# of strategy 1, the columns must be 2n tall in case we have a loop of length 2n
+# and it's 2n wide, In case we have 100 loops of length 1
+     while(depth<2*n)
+     {
+# finds the loop
+      u=cards[u]
+# uses rbind to create the big matrix (as described above)
+      permutation_matrix=rbind(permutation_matrix,u)
+# checks for the next loop which is 1 longer then the previous 
+      depth=depth+1
+     }
+     for (box in boxes)
+     {
+# records the simulated occurrence of the different depth (length) of the loops
+       occurence_time[which(permutation_matrix[,box]==box)[1]]=1
+     }
+# complies all the raw occurrences times together into one 2n long vector
+    occurence=occurence+occurence_time
+  }
+# takes each element in the vector and divides by reps to get it in a 
+# between 0 and 1, e.g. a probability 
+  probs=occurence/nreps
+  return(probs)
+}
+```
+
+# 6
+```{r, echo=FALSE}
+# calling the function dloop(), 
+n=50 
+nreps=10000
+prob=dloop(n,nreps)
+prob
+```
+
+```{r}
+## finds the probability that there is no loop longer than 50 
+## arguments n and nreps
+## some of this code is the same as dloop, so I've omitted the corresponding 
+## code
+dloop.check=function(n,nreps)
+{
+  boxes=1:(2*n)
+# sets the variable at 0, which will later be used to record loops less than 50
+  less_50=0
+  for (i in 1:nreps)
+  {
+     cards=sample(boxes,2*n)
+# an empty vector of length 2n for storing values
+     depth_measure=rep(0,2*n)
+     depth=1
+     u=cards
+     permutation_matrix=cards
+     while(depth<2*n)
+     {
+      u=cards[u]
+      permutation_matrix=rbind(permutation_matrix,u)
+      depth=depth+1
+     }
+     for (box in boxes)
+     {
+      depth_measure[which(permutation_matrix[,box]==box)[1]]=1
+     }
+ ## depth_measure is recording the occurrence depth of the loop in each interaction
+      if (any(depth_measure[(n+1):(2*n)]==1)==FALSE)
+      {
+# records if there is no loop longer then 50 
+        less_50=less_50+1
+      }
+  }
+# returns the prob that no loop is longer than 50
+  return(less_50/nreps)
+}
+```
+
+```{r}
+d=1:100 # a lovely 1/x graph 
+plot(d,prob,type='b',col=4,xlab='loop depth',ylab='probability',main='probability of occurence for loops in depth 1 to 100')
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
