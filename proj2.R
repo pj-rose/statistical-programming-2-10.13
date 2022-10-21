@@ -340,6 +340,8 @@ dloop.check=function(n,nreps)
   return(less_50/nreps)
 }
 # gives the probability that there isn't a loop longer than 50
+# this is the same as pall(50,1,10000), how cool!, because if there is no loop
+# greater than 50, then they all go free. 
 dloop.check(50,10000)
 
 d=1:100 # a lovely 1/x graph 
