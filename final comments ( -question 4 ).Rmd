@@ -1,8 +1,8 @@
 ---
 title: "proj2"
-author: "pj"
-date: "2022/10/17"
-output: pdf_document
+author: 
+
+
 ---
 #1
 ```{r , include=FALSE}
